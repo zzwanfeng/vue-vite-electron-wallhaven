@@ -1,4 +1,4 @@
-import { ref, reactive } from 'vue'
+import { ref } from 'vue'
 import ajax from "@/utils/request";
 import { objToUrl } from "@/utils/util";
 //数据查询
@@ -8,17 +8,17 @@ export default function () {
   let isLoading = ref(false)
   let list = ref([])
   let total = ref(0)
-  let search = reactive({})
+  let search = {}
 
-  const next = (value) => {
-    getlist(value);
+  const next = () => {
+    getlist(search);
   }
 
   const handleSearch = (data) => {
     if (!isLoading.value) {
       page = 1
-      search = { ...search, ...data }
-      getlist()
+      const newSearch = { ...search, ...data }
+      getlist(newSearch)
     }
   }
 

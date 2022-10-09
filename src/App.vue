@@ -16,6 +16,7 @@
       </div>
 
       <div class="component">
+        <!-- todo 更换为路由跳转 -->
         <transition name="slide-fade">
           <component
             :key="component"

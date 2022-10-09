@@ -9,22 +9,22 @@
           <span class="btn" @click="handleSetDownPath">修改下载目录</span>
         </p>
       </div>
-      <template v-if="$root.downFiles.length > 0">
-        <div
-          v-for="(img, index) in $root.downFiles"
-          :key="index"
-          class="img-item"
-        >
+
+      <template v-if="downFiles.length > 0">
+        <div v-for="(img, index) in downFiles" :key="index" class="img-item">
           <div class="img">
             <img draggable="false" :src="img.small" alt />
           </div>
+
           <div class="down-content">
             <div class="img-info">
               <div class="img-resolution">尺寸：{{ img.resolution }}</div>
               <div class="img-size">图片大小：{{ byte(img.size) }}</div>
+
               <div class="img-speed" v-if="img.state === 'downing'">
                 下载速度：{{ byte(img.speedBytes) }}/s
               </div>
+
               <div class="img-offset" v-if="img.state === 'wait'">等待中</div>
               <div class="img-offset" v-else>
                 已下载：{{ byte(img.offset) }}
@@ -46,6 +46,7 @@
                 ></div>
               </div>
             </div>
+
             <el-progress
               :status="img.state | state"
               :percentage="img.progress"
@@ -53,21 +54,15 @@
           </div>
         </div>
       </template>
+
       <template v-else>
         <div class="empty">任务队列已经空空如也~</div>
       </template>
     </div>
-    <div
-      class="down-card"
-      v-if="$root.downDoneFiles.length > 0"
-      @click="handleOpen"
-    >
+
+    <div class="down-card" v-if="downDoneFiles.length > 0" @click="handleOpen">
       <h2 class="title">已完成</h2>
-      <div
-        v-for="(img, index) in $root.downDoneFiles"
-        :key="index"
-        class="img-item"
-      >
+      <div v-for="(img, index) in downDoneFiles" :key="index" class="img-item">
         <div class="img">
           <img draggable="false" :src="img.small" alt :data-path="img.path" />
         </div>
@@ -78,7 +73,7 @@
           <div class="img-path">地址：{{ img.path }}</div>
           <div
             class="clost-btn iconfont icon-guanbi"
-            @click="handleClose(img, false)"
+            @click="handleClose(img)"
           ></div>
         </div>
       </div>
@@ -86,7 +81,8 @@
   </div>
 </template>
 
-<script>
+<script setup>
+import { ref } from 'vue'
 import { byte } from '@/utils/util'
 /* const dataJs = {
         id: '唯一值',
@@ -104,74 +100,77 @@ import { byte } from '@/utils/util'
         eTag: '标示',
         startTime: 'UNIX 下载时间'
     } */
-import { pause, resume, nextresume, cancel } from '@/libs/downfile'
+import { SystemStore } from '@/store/modules/System'
+import { pause, resume, nextresume, cancel } from '@/utils/downfile'
 let { shell, ipcRenderer } = require('electron')
 
-export default {
-  name: 'DownloadPage',
-  data() {
-    return { path: localStorage.getItem('downloads') }
-  },
-  methods: {
-    //暂停
-    handlePaused(img) {
-      pause(img.url)
-    },
-    //恢复下载  恢复断点下载
-    handleResume(img) {
-      if (img.state === 'paused') {
-        resume(img.url)
-      } else {
-        nextresume(img)
-      }
-    },
-    //取消下载
-    handleClose(item, type = true) {
-      //取消下载任务
-      if (item.state !== 'completed') {
-        cancel(item.url)
-      }
-      //删除列表
-      this.$root.removeDownFile(item.id, type)
-    },
-    // 打开图片路径
-    handleOpen(event) {
-      let path = event.target.dataset.path
-      if (path !== undefined) {
-        ipcRenderer.send('check_path', { path })
-        ipcRenderer.once(`check_path${path}`, (e, err) => {
-          err &&
-            this.$message({
-              message: '文件不存在',
-              type: 'error',
-              duration: 2000,
-            })
+const SystemPinia = SystemStore()
+let downFiles = SystemPinia?.getAllDownFiles ?? []
+let downDoneFiles = SystemPinia?.getAllDownDoneFiles ?? []
+
+// 下载地址
+let path = ref(localStorage.getItem('downloads'))
+
+//暂停
+const handlePaused = (img) => {
+  pause(img.url)
+}
+
+//恢复下载  恢复断点下载
+const handleResume = (img) => {
+  if (img.state === 'paused') {
+    resume(img.url)
+  } else {
+    nextresume(img)
+  }
+}
+
+//取消下载
+const handleClose = (item) => {
+  //取消下载任务
+  if (item.state !== 'completed') {
+    cancel(item.url)
+  }
+  //删除列表
+  SystemPinia.setDownFiles(item, 'remove')
+}
+
+// 打开图片路径
+const handleOpen = (event) => {
+  let path = event.target.dataset.path
+  if (path !== undefined) {
+    ipcRenderer.send('check_path', { path })
+    ipcRenderer.once(`check_path${path}`, (e, err) => {
+      err &&
+        this.$message({
+          message: '文件不存在',
+          type: 'error',
+          duration: 2000,
         })
-      }
-    },
-    handleSetDownPath() {
-      ipcRenderer.send('set_path')
-      ipcRenderer.once(`set_path`, (e, data) => {
-        if (!data.canceled) {
-          localStorage.setItem('downloads', data.filePaths[0])
-          this.path = data.filePaths[0]
-        }
-      })
-    },
-  },
-  filters: {
-    state(val) {
-      if (['cancelled', 'interrupted-err'].includes(val)) {
-        return 'exception'
-      }
-      // 暂停 - 或者可恢复
-      else if (['paused', 'interrupted'].includes(val)) {
-        return 'warning'
-      } else if (['completed'].includes(val)) {
-        return 'success'
-      }
-    },
-  },
+    })
+  }
+}
+
+const handleSetDownPath = () => {
+  ipcRenderer.send('set_path')
+  ipcRenderer.once(`set_path`, (e, data) => {
+    if (!data.canceled) {
+      localStorage.setItem('downloads', data.filePaths[0])
+      path.value = data.filePaths[0]
+    }
+  })
+}
+
+const state = (val) => {
+  if (['cancelled', 'interrupted-err'].includes(val)) {
+    return 'exception'
+  }
+  // 暂停 - 或者可恢复
+  else if (['paused', 'interrupted'].includes(val)) {
+    return 'warning'
+  } else if (['completed'].includes(val)) {
+    return 'success'
+  }
 }
 </script>
 

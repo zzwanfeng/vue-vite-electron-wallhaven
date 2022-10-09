@@ -5,5 +5,9 @@
 </template>
 
 <script setup>
-const collections = []
+import ImgList from '@/components/ImgList/Index.vue'
+import { SystemStore } from '@/store/modules/System'
+const SystemPinia = SystemStore()
+
+let collections = SystemPinia.getAllCollectFiles
 </script>

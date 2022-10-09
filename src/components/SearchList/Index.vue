@@ -52,6 +52,8 @@
 <script setup>
 import { watch, ref, reactive } from 'vue'
 
+const emit = defineEmits()
+
 const { total, purity, sorting } = defineProps({
   total: {
     type: Number,
@@ -81,7 +83,7 @@ const { total, purity, sorting } = defineProps({
 
 let search = reactive({
   purity: purity,
-  sorting: 'date_added',
+  sorting: sorting,
   atleast: '',
   q: '',
 })
@@ -98,7 +100,11 @@ const handleSearch = () => {
   if (search.purity.length === 0) {
     search.purity = ['SFW']
   }
+  console.log('search', search)
   // this.$emit('search', { ...this.search })
+  emit('search', {
+    ...search,
+  })
 }
 
 // export default {

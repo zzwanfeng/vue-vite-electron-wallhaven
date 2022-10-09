@@ -84,7 +84,6 @@ const { skeleton, list } = defineProps({
   skeleton: Boolean,
   list: Array,
 })
-
 const emit = defineEmits()
 
 let pageScrollTop = ref(0)
@@ -126,6 +125,12 @@ watch(
 
 // 添加收藏
 const handleAddCollection = async (item) => {
+  const obj = {
+    ...item,
+    _img: {
+      a: 132,
+    },
+  }
   await SystemPinia.setCollectFiles(item, 'add')
 
   ElMessage({
@@ -147,7 +152,7 @@ const handleRemoveCollection = async (item) => {
 
 // 获取收藏状态
 const getCollection = (id) => {
-  let collections = SystemPinia.getAllCollectFiles
+  let collections = SystemPinia?.getAllCollectFiles ?? []
   const isShow =
     collections.length > 0 &&
     collections.findIndex((item) => id == item.id) !== -1
@@ -160,7 +165,7 @@ const handleView = async (item) => {
 }
 
 // 下载
-const handleDownFile = (item) => {
+const handleDownFile = async (item) => {
   let {
     id,
     path: url,
@@ -168,8 +173,26 @@ const handleDownFile = (item) => {
     resolution,
     thumbs: { small },
   } = item
-  this.$root.addDownFile({ id, url, size, resolution, small, _img: item })
-  this.$message({ message: '已加入下载', type: 'success', duration: 2000 })
+
+  let obj = JSON.parse(
+    JSON.stringify({
+      id,
+      url,
+      size,
+      resolution,
+      small,
+      _img: item,
+    })
+  )
+  console.log('111', obj)
+
+  await SystemPinia.setDownFiles(obj)
+
+  ElMessage({
+    message: '已加入下载',
+    type: 'success',
+    duration: 2000,
+  })
 }
 
 // todo 右键操作
