@@ -1,0 +1,130 @@
+:root {
+  --el-color-primary: rgba(0, 0, 0, 0.623);
+  --el-text-color-regular: #a0a0a0;
+  --el-fill-color-blank: #201f29;
+  --el-border-color: #201f29;
+  --el-text-color-disabled: #201f29;
+
+  --el-input-hover-border-color: #201f29;
+}
+
+// .el-message {
+//   min-width: 0;
+//   padding: 8px 10px;
+//   left: 260px;
+//   right: 0;
+//   margin: 0 auto;
+//   width: fit-content;
+// }
+
+// .el-message--success {
+//   background-color: #fff;
+//   border-color: #fff;
+
+//   .el-icon-success {
+//     color: #38acfa;
+//   }
+
+//   .el-message__content {
+//     color: rgb(41, 41, 41);
+//   }
+// }
+
+.el-checkbox-group {
+  box-shadow: 0 0 15px 0 rgba(0, 0, 0, 0.5);
+  border-radius: 3px;
+
+  .el-checkbox-button {
+    &.is-checked {
+      .el-checkbox-button__inner {
+        color: #38acfa!important;
+        background-color:rgba(0, 0, 0, 0.623)!important
+      }
+    }
+
+    .el-checkbox-button__inner {
+      border: none !important;
+      box-shadow: none !important;
+
+      &:hover{
+        color: #a0a0a0;
+        background: #201f29;
+        border: none;
+      }
+    }
+  }
+}
+// :deep(.el-checkbox-button__inner:hover) {
+
+// }
+// .el-select,.el-input {
+//   :deep(.el-input__wrapper) {
+//     box-shadow: 0 0 15px 0 #201f29 !important;
+//   }
+// }
+
+// .el-select,
+// .el-input-group {
+//   box-shadow: 0 0 15px 0 rgba(0, 0, 0, 0.5);
+// }
+
+// .el-select-dropdown,
+// .el-input__inner {
+//   color: #a0a0a0;
+//   background: #201f29;
+//   border: none;
+//   user-select: none;
+
+//   :host {
+//     user-select: none;
+//   }
+// }
+
+.el-popper {
+  border: none !important;
+  // background-color: #201f29 !important;
+}
+
+.el-popper__arrow {
+  &::before {
+    // background: #201f29 !important;
+    border: none !important;
+  }
+}
+
+// .el-input-group__append {
+//   background: rgba(0, 0, 0, 0.623);
+//   border: none;
+// }
+
+// .popper__arrow {
+//   border-bottom-color: #201f29  !important;
+
+//   &::after {
+//     border-bottom-color: #201f29  !important;
+//   }
+// }
+
+// .el-select-dropdown__item {
+
+//   &.selected,
+//   &.hover,
+//   &:hover {
+//     color: #a0a0a0;
+//     background: #201f29;
+//     border: none;
+//   }
+// }
+
+// .el-loading-mask {
+//   background-color: rgba(0, 0, 0, 0.1);
+//   /*  pointer-events  : none; */
+// }
+
+// .el-badge__content {
+//   border: none;
+// }
+
+// .el-progress-bar__inner {
+//   transition: width .08s ease;
+// }

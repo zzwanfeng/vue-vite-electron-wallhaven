@@ -1,0 +1,192 @@
+* {
+  padding: 0;
+  margin: 0;
+  user-select: none !important;
+  -webkit-touch-callout: none !important;
+  -webkit-user-select: none !important;
+  cursor: url(../assets/images/cursor.png), auto !important;
+}
+
+html,
+body {
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0);
+  margin: 0;
+  -moz-osx-font-smoothing: grayscale;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  font-family: 'Segoe UI',Tahoma, Geneva, Verdana,sans-serif,Helvetica Neue, Helvetica, PingFang SC, Hiragino Sans GB, Microsoft YaHei, Arial;
+  font-size: 14px;
+  overflow: hidden;
+}
+
+
+img {
+  cursor: url(../assets/images/img-cursor.png), auto !important;
+}
+
+::-webkit-scrollbar {
+  width: 6px;
+  height: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+  border-radius: 5px;
+  background: url(https://w.wallhaven.cc/full/2e/wallhaven-2erpym.jpg);
+  filter: blur(10px);
+}
+
+label {
+  font-weight: 700;
+}
+
+html {
+  height: 100%;
+  box-sizing: border-box;
+}
+
+#app {
+  height: 100%;
+}
+
+*,
+*:before,
+*:after {
+  box-sizing: inherit;
+}
+
+a:focus,
+a:active {
+  outline: none;
+}
+
+a,
+a:focus,
+a:hover {
+  cursor: pointer;
+  color: inherit;
+  text-decoration: none;
+}
+
+div:focus {
+  outline: none;
+}
+
+.text-center {
+  text-align: center;
+}
+
+.text-right {
+  text-align: right;
+}
+
+.text-left {
+  text-align: left;
+}
+
+.flex-1 {
+  flex: 1;
+}
+
+.v-flex {
+  display: flex !important;
+
+  &.column {
+    flex-direction: column;
+  }
+
+	&.wrap{
+		flex-wrap: wrap;
+	}
+
+  &.wrap {
+    flex-wrap: wrap;
+  }
+
+	&.jsa {
+		justify-content: space-around;
+	}
+
+  &.jsb {
+    justify-content: space-between;
+  }
+
+  &.jsc {
+    justify-content: center;
+  }
+
+	&.jss {
+		justify-content: flex-start;
+	}
+
+  &.aic {
+    align-items: center;
+  }
+
+  .content {
+    flex: 1;
+    overflow: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+}
+
+.text-overflow {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.hint {
+  margin-top: 6px;
+  color: black;
+  font-size: 12px;
+  line-height: 1;
+}
+
+.btn_left_10 {
+  margin-left: 10px;
+}
+
+.yc1 {
+  display: -webkit-box;
+  -webkit-line-clamp: 1;
+  text-overflow: ellipsis;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.yc2 {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  text-overflow: ellipsis;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.w100{
+	width: 100%;
+}
+
+.h100{
+	height: 100%;
+}
+
+.m0{
+	margin: 0;
+}
+
+.p0{
+	padding: 0!important;
+}
+
+.mgl10 {
+  margin-left: 10px;
+}
+
+.mgr10 {
+  margin-right: 10px;
+}
+
+.cursor-pointer{
+	cursor: pointer;
+}
