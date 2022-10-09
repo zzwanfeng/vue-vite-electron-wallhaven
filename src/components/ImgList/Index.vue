@@ -184,9 +184,9 @@ const handleDownFile = async (item) => {
       _img: item,
     })
   )
-  console.log('111', obj)
-
-  await SystemPinia.setDownFiles(obj)
+  setTimeout(async () => {
+    await SystemPinia.setDownFiles(obj)
+  }, 1000)
 
   ElMessage({
     message: '已加入下载',
