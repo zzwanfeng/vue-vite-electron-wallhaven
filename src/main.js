@@ -8,9 +8,15 @@ import '@/style/index.scss';
 
 import { store } from '@/store'
 
-import { initPath } from '@/utils/downfile'
+import { initPath, updateDownState } from '@/utils/downfile'
 // 初始化下载目录
 initPath()
 
 
+
+
 createApp(App).use(ElementPlus).use(store).mount('#app')
+
+import { SystemStore } from '@/store/modules/System'
+const SystemPinia = SystemStore()
+updateDownState(SystemPinia.setDownState);

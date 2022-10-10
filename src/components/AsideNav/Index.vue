@@ -98,7 +98,7 @@ const nav = [
 let actice = ref('hot')
 
 const SystemPinia = SystemStore()
-const downFiles = SystemPinia.downFiles || []
+const downFiles = SystemPinia?.getAllDownFiles ?? []
 
 const handleSelect = (i) => {
   actice.value = i.id

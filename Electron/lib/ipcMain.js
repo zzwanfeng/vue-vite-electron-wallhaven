@@ -8,7 +8,6 @@ let cacheDownItem = {}
 
 
 const mainWindowIpcStart = function (win) {
-
   // 打开调试
   ipcMain.on("toggle_dev_tools", function (event, arg) {
     win.webContents.toggleDevTools();

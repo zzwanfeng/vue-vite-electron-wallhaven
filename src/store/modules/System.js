@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia'
-import { updateDownState, downFile } from '@/utils/downfile'
+import { downFile } from '@/utils/downfile'
 import { getTime } from '@/utils/util'
 
 export const SystemStore = defineStore('SystemStore', {
@@ -37,8 +37,6 @@ export const SystemStore = defineStore('SystemStore', {
           value.done = "downing";
           this.downFiles.splice(0, 0, value)
           downFile(value)
-
-          updateDownState(this.setDownState);
         }
       } else {
         let index = this.downFiles.findIndex(item => item.id === value.id);
@@ -64,6 +62,9 @@ export const SystemStore = defineStore('SystemStore', {
           this.downFiles[index] = data
         }
       }
+      // todo  开发阶段先用缓存   后续修改
+      window.localStorage.setItem('downFiles', JSON.stringify(this.downFiles))
+      window.localStorage.setItem('downDoneFiles', JSON.stringify(this.downDoneFiles))
     },
     restDownFiles () {
       const getDownFiles = window.localStorage.getItem('downFiles')

@@ -72,7 +72,7 @@
 
 <script setup>
 import { ref, onMounted, onUnmounted, watch, reactive, computed } from 'vue'
-import errimg from '@/assets/errimg.svg'
+import errimg from '@/assets/images/errimg.svg'
 import { SystemStore } from '@/store/modules/System'
 import { ElMessage } from 'element-plus'
 import { byte } from '@/utils/util'
@@ -84,6 +84,7 @@ const { skeleton, list } = defineProps({
   skeleton: Boolean,
   list: Array,
 })
+
 const emit = defineEmits()
 
 let pageScrollTop = ref(0)
@@ -125,12 +126,6 @@ watch(
 
 // 添加收藏
 const handleAddCollection = async (item) => {
-  const obj = {
-    ...item,
-    _img: {
-      a: 132,
-    },
-  }
   await SystemPinia.setCollectFiles(item, 'add')
 
   ElMessage({

@@ -73,7 +73,7 @@
           <div class="img-path">地址：{{ img.path }}</div>
           <div
             class="clost-btn iconfont icon-guanbi"
-            @click="handleClose(img)"
+            @click="handleClose(img, 'done')"
           ></div>
         </div>
       </div>
@@ -126,13 +126,17 @@ const handleResume = (img) => {
 }
 
 //取消下载
-const handleClose = (item) => {
-  //取消下载任务
-  if (item.state !== 'completed') {
-    cancel(item.url)
+const handleClose = (item, type = 'downing') => {
+  if (type === 'downing') {
+    //取消下载任务
+    if (item.state !== 'completed') {
+      cancel(item.url)
+    }
+    //删除列表
+    SystemPinia.setDownFiles(item, 'remove')
+  } else {
+    SystemPinia.setDownDoneFiles(item, 'remove')
   }
-  //删除列表
-  SystemPinia.setDownFiles(item, 'remove')
 }
 
 // 打开图片路径

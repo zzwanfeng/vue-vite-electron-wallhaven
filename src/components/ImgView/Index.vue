@@ -1,15 +1,21 @@
 <template>
   <transition name="slide">
     <div v-if="show" class="animation-content">
-      <div class="img-view" ref="imgContent" v-loading="loading">
+      <div
+        class="img-view"
+        ref="imgContent"
+        id="imgContent"
+        v-loading="loading"
+      >
+        <!-- v-dragwidth -->
         <img
           @error="handleError"
           ref="img"
+          id="img"
           draggable="false"
-          v-dragwidth
-          :width="img.w"
-          :height="img.h"
-          :src="path"
+          :width="imgSize.w"
+          :height="imgSize.h"
+          :src="imgUrl"
         />
         <div class="zoom-bage">{{ zoom }}</div>
       </div>
@@ -30,234 +36,295 @@
       </div>
     </div>
   </transition>
+
+  <!-- <div>{{ data }}</div> -->
 </template>
 
-<script>
+<script setup>
+import {
+  ref,
+  onMounted,
+  onUnmounted,
+  watch,
+  reactive,
+  computed,
+  watchEffect,
+  nextTick,
+} from 'vue'
 import { aspectRatioToWH } from '@/utils/util'
 import { getTime } from '@/utils/util'
 import { getImgBlod } from '@/libs/ajax'
-import errimg from '@/assets/errimg.svg'
+import errimg from '@/assets/images/errimg.svg'
+import { ElMessage } from 'element-plus'
+import { SystemStore } from '@/store/modules/System'
+const SystemPinia = SystemStore()
 
-export default {
-  name: 'ImgView',
-  data() {
-    return {
-      loading: false,
-      show: false,
-      path: '',
-      zoom: 0, // 缩放比 %
-      img: {
-        w: 0,
-        h: 0,
-      },
+let loading = ref(false)
+let show = ref(false)
+let imgUrl = ref('')
+let zoom = ref(0)
+let imgSize = reactive({
+  w: 0,
+  h: 0,
+})
+
+let { height, width } = document.documentElement.getBoundingClientRect()
+let clientWidth = ref(width)
+let clientHeight = ref(height)
+let originalW = ref(0)
+let minImg = ref({})
+
+let data = ref({})
+SystemPinia.$subscribe(
+  (mutation, state) => {
+    if (state?.nowImgView?.url) {
+      data.value = state.nowImgView
+      handler(data.value)
     }
   },
-  props: {
-    data: {
-      type: Object,
-      default() {
-        return {}
-      },
-    },
-  },
-  watch: {
-    data: {
-      deep: true,
-      handler(val) {
-        let { dimension_x, dimension_y, path, ratio } = val
-        this.show = true
-        this.path = val.thumbs.original //先填充原图等比例的 略缩图
-        this.img = aspectRatioToWH(
-          this.clientWidth - 100,
-          this.clientHeight - 200,
-          ratio,
-          dimension_x,
-          dimension_y
-        )
-        this.originalW = dimension_x
-        this.zoom = parseInt((this.img.w / dimension_x) * 100)
-        this.minImg = { ...this.img }
-        this.loading = true
-        // 等待动画完成后
-        setTimeout(() => {
-          this.$refs.img.style.left = 'auto'
-          this.$refs.img.style.top = 'auto'
-          this.$refs.imgContent.addEventListener('wheel', this.setImgWH)
-        }, 800)
+  { detached: false }
+)
 
-        // 获取原始图片
-        getImgBlod(path)
-          .then((res) => {
-            this.path = res
-            this.img = aspectRatioToWH(
-              this.clientWidth - 100,
-              this.clientHeight - 200,
-              ratio,
-              dimension_x,
-              dimension_y
-            )
-            this.loading = false
-          })
-          .catch((res) => {
-            //this.$message.error('图片加载失败')
-            console.log(res)
-            this.loading = false
-          })
-      },
-    },
-  },
-  mounted() {
-    let { height, width } = document.documentElement.getBoundingClientRect()
-    this.clientWidth = width
-    this.clientHeight = height
-  },
-  methods: {
-    //还原位置
-    handleRef() {
-      this.$refs.img.style.left = 'auto'
-      this.$refs.img.style.top = 'auto'
-      this.img = { ...this.minImg }
-    },
-    // 图片加载失败
-    handleError() {
-      this.path = errimg
-      this.img = { w: 600, h: 600 }
-    },
-    // 获取等比高度
-    setImgWH(e) {
-      let img = this.$refs.img
-      if (img) {
-        let oX = img.offsetLeft + this.img.w / 2
-        let oY = img.offsetTop + this.img.h / 2
+const handler = (val) => {
+  let { dimension_x, dimension_y, path, ratio } = val
+  show.value = true
+  imgUrl.value = val.thumbs.original //先填充原图等比例的 略缩图
+  const newImgSize = aspectRatioToWH(
+    clientWidth.value - 100,
+    clientHeight.value - 200,
+    ratio,
+    dimension_x,
+    dimension_y
+  )
+  imgSize.w = newImgSize.w
+  imgSize.h = newImgSize.h
 
-        if (e.wheelDeltaY > 0) {
-          this.img.w += this.img.w * 0.1
-          this.img.h += this.img.h * 0.1
-        } else {
-          this.img.w -= this.img.w * 0.1
-          this.img.h -= this.img.h * 0.1
-        }
+  originalW.value = dimension_x
+  zoom.value = parseInt((imgSize.w / dimension_x) * 100)
+  minImg.value = { ...imgSize }
+  loading.value = true
 
-        if (this.img.w < this.minImg.w) {
-          this.img.w = this.minImg.w
-        }
+  // 等待动画完成后
+  setTimeout(() => {
+    const imgDom = document.getElementById('img')
+    const imgContentDom = document.getElementById('imgContent')
 
-        if (this.img.h < this.minImg.h) {
-          this.img.h = this.minImg.h
-        }
+    imgDom.style.left = 'auto'
+    imgDom.style.top = 'auto'
 
-        img.style.left = oX - this.img.w / 2 + 'px'
-        img.style.top = oY - this.img.h / 2 + 'px'
+    imgContentDom.addEventListener('wheel', setImgWH, true)
+  }, 800)
 
-        this.zoom = parseInt((this.img.w / this.originalW) * 100)
-      }
-    },
-    // 关闭
-    handleClose() {
-      this.show = false
-    },
-    // 添加收藏
-    handleAddCollection(item) {
-      this.$root.AddCollection(item)
-      this.$message({
-        message: '收藏成功',
-        type: 'success',
-        duration: 2000,
-      })
-    },
-    // 移除收藏
-    handleRemoveCollection(item) {
-      this.$root.removeCollection(item)
-      this.$message({
-        message: '取消收藏',
-        type: 'success',
-        duration: 2000,
-      })
-    },
-    // 下载
-    handleDownFile(item = this.data) {
-      let {
-        id,
-        path: url,
-        file_size: size,
-        resolution,
-        thumbs: { small },
-      } = item
-      if (/^blob:/.test(this.path)) {
-        const a = document.createElement('a')
-        a.href = this.path
-        a.download = `one-${id}${url.substr(url.lastIndexOf('.'))}`
-        a.click()
-        setTimeout(() => {
-          URL.revokeObjectURL(a.href)
-          a.remove()
-        }, 3000)
-        this.$message({ message: '下载成功', type: 'success', duration: 2000 })
-        this.$root.downDoneFiles.splice(0, 0, {
-          id,
-          resolution,
-          size,
-          small,
-          url,
-          downloadtime: getTime(),
-        })
-      } else {
-        this.$root.addDownFile({ id, url, size, resolution, small, _img: item })
-        this.$message({
-          message: '已加入下载',
-          type: 'success',
-          duration: 2000,
-        })
-      }
-    },
-    // 获取收藏状态
-    getCollection(id) {
-      // let collections = this.$root.collections;
-      // return collections.length > 0 && collections.findIndex(item => id == item.id) !== -1;
-      return false
-    },
-  },
-  directives: {
-    dragwidth: {
-      bind: function (el, binding, vnode) {
-        let odiv = el
-        let x = 0
-        let y = 0
-        let l = 0
-        let t = 0
-        let isDown = false
-
-        odiv.onmousedown = function (e) {
-          if (e.button === 0) {
-            //获取x坐标和y坐标
-            x = e.clientX
-            y = e.clientY
-            //获取左部和顶部的偏移量
-            l = odiv.offsetLeft
-            t = odiv.offsetTop
-            isDown = true
-
-            document.onmousemove = function (e) {
-              if (isDown) {
-                let nx = e.clientX
-                let ny = e.clientY
-                odiv.style.left = nx - (x - l) + 'px'
-                odiv.style.top = ny - (y - t) + 'px'
-              }
-            }
-
-            document.onmouseup = function () {
-              isDown = false
-
-              document.onmousemove = null
-              document.onmouseup = null
-            }
-          }
-        }
-      },
-    },
-  },
+  // 获取原始图片
+  getImgBlod(path)
+    .then((res) => {
+      imgUrl.value = res
+      const newImgSize = aspectRatioToWH(
+        clientWidth.value - 100,
+        clientHeight.value - 200,
+        ratio,
+        dimension_x,
+        dimension_y
+      )
+      imgSize.w = newImgSize.w
+      imgSize.h = newImgSize.h
+      loading.value = false
+    })
+    .catch((res) => {
+      //this.$message.error('图片加载失败')
+      console.log(res)
+      loading.value = false
+    })
 }
+
+//还原位置
+const handleRef = () => {
+  const imgDom = document.getElementById('img')
+  imgDom.style.left = 'auto'
+  imgDom.style.top = 'auto'
+
+  imgSize.w = minImg.value.w
+  imgSize.h = minImg.value.h
+}
+
+// 图片加载失败
+const handleError = () => {
+  path = errimg
+  imgSize.w = 600
+  imgSize.h = 600
+}
+
+// 获取等比高度
+const setImgWH = (e) => {
+  let img = document.getElementById('img')
+
+  if (img) {
+    let oX = img.offsetLeft + imgSize.w / 2
+    let oY = img.offsetTop + imgSize.h / 2
+
+    if (e.wheelDeltaY > 0) {
+      imgSize.w += imgSize.w * 0.1
+      imgSize.h += imgSize.h * 0.1
+    } else {
+      imgSize.w -= imgSize.w * 0.1
+      imgSize.h -= imgSize.h * 0.1
+    }
+
+    if (imgSize.w < minImg.w) {
+      imgSize.w = minImg.w
+    }
+
+    if (imgSize.h < minImg.h) {
+      imgSize.h = minImg.h
+    }
+
+    img.style.left = oX - imgSize.w / 2 + 'px'
+    img.style.top = oY - imgSize.h / 2 + 'px'
+
+    zoom.value = parseInt((imgSize.w / originalW.value) * 100)
+  }
+}
+
+// 关闭
+const handleClose = async () => {
+  show.value = false
+  await SystemPinia.setNowImgView(null)
+}
+
+// 添加收藏
+const handleAddCollection = async (item) => {
+  await SystemPinia.setCollectFiles(item, 'add')
+
+  ElMessage({
+    message: '收藏成功',
+    type: 'success',
+    duration: 2000,
+  })
+}
+
+// 移除收藏
+const handleRemoveCollection = async (item) => {
+  await SystemPinia.setCollectFiles(item, 'remove')
+  ElMessage({
+    message: '取消收藏',
+    type: 'success',
+    duration: 2000,
+  })
+}
+
+// 下载
+const handleDownFile = async (item = data.value) => {
+  let {
+    id,
+    path: url,
+    file_size: size,
+    resolution,
+    thumbs: { small },
+  } = item
+
+  // if (/^blob:/.test(imgUrl.value)) {
+  //  // 方法一 ()这个方法还没处理 下载管理的数据 暂时不用)
+  //   setTimeout(async () => {
+  //     const a = document.createElement('a')
+  //     a.href = imgUrl.value
+  //     a.download = `one-${id}${url.substr(url.lastIndexOf('.'))}`
+  //     a.click()
+  //     setTimeout(() => {
+  //       URL.revokeObjectURL(a.href)
+  //       a.remove()
+  //     }, 3000)
+
+  //     SystemPinia.setDownDoneFiles(
+  //       {
+  //         id,
+  //         resolution,
+  //         size,
+  //         small,
+  //         url,
+  //         downloadtime: getTime(),
+  //       },
+  //       'add'
+  //     )
+  //   }, 3000)
+
+  //   ElMessage({
+  //     message: '下载成功',
+  //     type: 'success',
+  //     duration: 2000,
+  //   })
+  // } else {
+  // 方法二
+  let obj = JSON.parse(
+    JSON.stringify({
+      id,
+      url,
+      size,
+      resolution,
+      small,
+      _img: item,
+    })
+  )
+  setTimeout(async () => {
+    await SystemPinia.setDownFiles(obj)
+  }, 1000)
+
+  ElMessage({
+    message: '已加入下载',
+    type: 'success',
+    duration: 2000,
+  })
+  // }
+}
+
+// 获取收藏状态
+const getCollection = (id) => {
+  let collections = SystemPinia?.getAllCollectFiles ?? []
+  const isShow =
+    collections.length > 0 &&
+    collections.findIndex((item) => id == item.id) !== -1
+  return isShow
+}
+
+// directives: {
+//   dragwidth: {
+//     bind: function (el, binding, vnode) {
+//       let odiv = el
+//       let x = 0
+//       let y = 0
+//       let l = 0
+//       let t = 0
+//       let isDown = false
+
+//       odiv.onmousedown = function (e) {
+//         if (e.button === 0) {
+//           //获取x坐标和y坐标
+//           x = e.clientX
+//           y = e.clientY
+//           //获取左部和顶部的偏移量
+//           l = odiv.offsetLeft
+//           t = odiv.offsetTop
+//           isDown = true
+
+//           document.onmousemove = function (e) {
+//             if (isDown) {
+//               let nx = e.clientX
+//               let ny = e.clientY
+//               odiv.style.left = nx - (x - l) + 'px'
+//               odiv.style.top = ny - (y - t) + 'px'
+//             }
+//           }
+
+//           document.onmouseup = function () {
+//             isDown = false
+
+//             document.onmousemove = null
+//             document.onmouseup = null
+//           }
+//         }
+//       }
+//     },
+//   },
+// },
 </script>
 
 <style lang="scss" scoped>
