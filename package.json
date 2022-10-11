@@ -13,15 +13,19 @@
     "electron:build": "vite build && electron-builder"
   },
   "dependencies": {
+    "electron-edge-js": "^19.0.0",
     "element-plus": "^2.2.17",
+    "install": "^0.13.0",
+    "npm": "^8.19.2",
     "pinia": "^2.0.22",
-    "vue": "^3.2.37"
+    "vue": "^3.2.37",
+    "wallpaper": "^4.2.0"
   },
   "devDependencies": {
     "@vitejs/plugin-vue": "^3.1.0",
     "concurrently": "^7.4.0",
     "cross-env": "^7.0.3",
-    "electron": "^20.1.4",
+    "electron": "^19.0.0",
     "electron-builder": "^23.3.3",
     "sass": "^1.55.0",
     "vite": "^3.1.0",
@@ -39,7 +43,7 @@
       "icon": "./src/assets/logo.ico"
     },
     "linux": {
-      "icon":"./src/assets/logo.ico"
+      "icon": "./src/assets/logo.ico"
     },
     "nsis": {
       "oneClick": false,

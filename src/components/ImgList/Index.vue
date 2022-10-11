@@ -49,6 +49,8 @@
 
             <span>{{ item.resolution }}</span>
 
+            <span @click="aaa(item)">设为壁纸</span>
+
             <span @click="handleDownFile(item)">下载</span>
           </div>
         </li>
@@ -77,6 +79,30 @@ import { SystemStore } from '@/store/modules/System'
 import { ElMessage } from 'element-plus'
 import { byte } from '@/utils/util'
 import EmptyPage from '@/components/EmptyPage/Index.vue'
+
+const wallpaper = require('wallpaper')
+
+const edge = require('electron-edge-js')
+var setWallPaper = edge.func(`
+    using System.Threading.Tasks;
+    using System.Runtime.InteropServices;
+
+    public class Startup
+    {
+        public async Task<object> Invoke(object input)
+        {
+            string v = (string)input;
+            return SystemParametersInfo(20, 1, v, 1);
+        }
+        [DllImport("user32.dll", EntryPoint = "SystemParametersInfo")]
+	    public static extern int SystemParametersInfo(
+            int uAction,
+            int uParam,
+            string lpvParam,
+            int fuWinIni
+        );
+    }
+`)
 
 const SystemPinia = SystemStore()
 
@@ -161,32 +187,35 @@ const handleView = async (item) => {
 
 // 下载
 const handleDownFile = async (item) => {
-  let {
-    id,
-    path: url,
-    file_size: size,
-    resolution,
-    thumbs: { small },
-  } = item
-
-  let obj = JSON.parse(
-    JSON.stringify({
+  return new Promise((resolve, reject) => {
+    let {
       id,
-      url,
-      size,
+      path: url,
+      file_size: size,
       resolution,
-      small,
-      _img: item,
-    })
-  )
-  setTimeout(async () => {
-    await SystemPinia.setDownFiles(obj)
-  }, 1000)
+      thumbs: { small },
+    } = item
 
-  ElMessage({
-    message: '已加入下载',
-    type: 'success',
-    duration: 2000,
+    let obj = JSON.parse(
+      JSON.stringify({
+        id,
+        url,
+        size,
+        resolution,
+        small,
+        _img: item,
+      })
+    )
+
+    ElMessage({
+      message: '已加入下载',
+      type: 'success',
+      duration: 2000,
+    })
+    setTimeout(async () => {
+      await SystemPinia.setDownFiles(obj)
+      resolve()
+    }, 1000)
   })
 }
 
@@ -196,6 +225,47 @@ const openMenu = (e, data) => {
   // this.menuOffset.offsetWidth = this.$el.offsetWidth // container width
   // this.menuOffset.clientX = e.clientX
   // this.menuOffset.clientY = e.clientY
+}
+
+const aaa = async (item) => {
+  await handleDownFile(item).then((res) => {
+    ElMessage({
+      message: '正在更换壁纸',
+      type: 'success',
+      duration: 2000,
+    })
+
+    // console.log('11', wallpaper.get())
+    // wallpaper.set('c:\\windows\\web\\wallpaper\\theme1\\img2.jpg', {
+    //   screen: 'all',
+    //   scale: 'auto',
+    // })
+    // wallpaper.set(item.path, { screen: 'all', scale: 'auto' })
+
+    var start = new Date().getTime()
+    console.log('start', start)
+    setTimeout(() => {
+      let downDoneFiles = SystemPinia?.getAllDownDoneFiles ?? []
+      console.log('downDoneFiles', downDoneFiles)
+      console.log('downDoneFiles', downDoneFiles.length)
+      console.log('downDoneFiles', downDoneFiles[0])
+      setWallPaper(downDoneFiles[0].path, true, function (err, val) {
+        // setWallPaper(item.path, true, function (err, val) {
+        if (err) {
+          console.log('err', err)
+          throw err
+        } else {
+          console.log('val', val)
+          return val
+        }
+      })
+
+      var end = new Date().getTime()
+      console.log('end', end)
+
+      console.log('cost is', `${end - start}ms`)
+    }, 5000)
+  })
 }
 </script>
 
