@@ -33,6 +33,14 @@ const mainWindowIpcStart = function (win) {
     }
   })
 
+  win.on('maximize', () => {
+    win.webContents.send('mainWin-max', true)
+  })
+
+  win.on('unmaximize', () => {
+    win.webContents.send('mainWin-max', false)
+  })
+
   // 关闭程序
   ipcMain.on("close", function () {
     cacheDownItemClose()

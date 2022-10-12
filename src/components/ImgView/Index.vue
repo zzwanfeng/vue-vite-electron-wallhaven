@@ -7,8 +7,8 @@
         id="imgContent"
         v-loading="loading"
       >
-        <!-- v-dragwidth -->
         <img
+          v-dragwidth
           @error="handleError"
           ref="img"
           id="img"
@@ -37,7 +37,6 @@
     </div>
   </transition>
 
-  <!-- <div>{{ data }}</div> -->
 </template>
 
 <script setup>
@@ -68,9 +67,14 @@ let imgSize = reactive({
   h: 0,
 })
 
-let { height, width } = document.documentElement.getBoundingClientRect()
-let clientWidth = ref(width)
-let clientHeight = ref(height)
+let clientWidth = ref(0)
+let clientHeight = ref(0)
+nextTick(() => {
+  let { height, width } = document.documentElement.getBoundingClientRect()
+  clientWidth.value = width
+  clientHeight.value = height
+})
+
 let originalW = ref(0)
 let minImg = ref({})
 
@@ -79,6 +83,7 @@ SystemPinia.$subscribe(
   (mutation, state) => {
     if (state?.nowImgView?.url) {
       data.value = state.nowImgView
+
       handler(data.value)
     }
   },
@@ -101,11 +106,13 @@ const handler = (val) => {
 
   originalW.value = dimension_x
   zoom.value = parseInt((imgSize.w / dimension_x) * 100)
+
   minImg.value = { ...imgSize }
   loading.value = true
 
   // 等待动画完成后
-  setTimeout(() => {
+  // setTimeout(() => {
+  nextTick(() => {
     const imgDom = document.getElementById('img')
     const imgContentDom = document.getElementById('imgContent')
 
@@ -113,28 +120,30 @@ const handler = (val) => {
     imgDom.style.top = 'auto'
 
     imgContentDom.addEventListener('wheel', setImgWH, true)
-  }, 800)
 
-  // 获取原始图片
-  getImgBlod(path)
-    .then((res) => {
-      imgUrl.value = res
-      const newImgSize = aspectRatioToWH(
-        clientWidth.value - 100,
-        clientHeight.value - 200,
-        ratio,
-        dimension_x,
-        dimension_y
-      )
-      imgSize.w = newImgSize.w
-      imgSize.h = newImgSize.h
-      loading.value = false
-    })
-    .catch((res) => {
-      //this.$message.error('图片加载失败')
-      console.log(res)
-      loading.value = false
-    })
+    // 获取原始图片
+    getImgBlod(path)
+      .then((res) => {
+        imgUrl.value = res
+        const newImgSize = aspectRatioToWH(
+          clientWidth.value - 100,
+          clientHeight.value - 200,
+          ratio,
+          dimension_x,
+          dimension_y
+        )
+        imgSize.w = newImgSize.w
+        imgSize.h = newImgSize.h
+        loading.value = false
+      })
+      .catch((res) => {
+        //this.$message.error('图片加载失败')
+        console.log(res)
+        loading.value = false
+      })
+  })
+
+  // }, 800)
 }
 
 //还原位置
@@ -284,47 +293,6 @@ const getCollection = (id) => {
     collections.findIndex((item) => id == item.id) !== -1
   return isShow
 }
-
-// directives: {
-//   dragwidth: {
-//     bind: function (el, binding, vnode) {
-//       let odiv = el
-//       let x = 0
-//       let y = 0
-//       let l = 0
-//       let t = 0
-//       let isDown = false
-
-//       odiv.onmousedown = function (e) {
-//         if (e.button === 0) {
-//           //获取x坐标和y坐标
-//           x = e.clientX
-//           y = e.clientY
-//           //获取左部和顶部的偏移量
-//           l = odiv.offsetLeft
-//           t = odiv.offsetTop
-//           isDown = true
-
-//           document.onmousemove = function (e) {
-//             if (isDown) {
-//               let nx = e.clientX
-//               let ny = e.clientY
-//               odiv.style.left = nx - (x - l) + 'px'
-//               odiv.style.top = ny - (y - t) + 'px'
-//             }
-//           }
-
-//           document.onmouseup = function () {
-//             isDown = false
-
-//             document.onmousemove = null
-//             document.onmouseup = null
-//           }
-//         }
-//       }
-//     },
-//   },
-// },
 </script>
 
 <style lang="scss" scoped>

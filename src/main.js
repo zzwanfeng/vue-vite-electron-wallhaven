@@ -13,9 +13,13 @@ import { initPath, updateDownState } from '@/utils/downfile'
 initPath()
 
 
+import { initDirective } from './directives'
 
 
-createApp(App).use(ElementPlus).use(store).mount('#app')
+const app = createApp(App)
+initDirective(app)
+app.use(ElementPlus).use(store).mount('#app')
+
 
 import { SystemStore } from '@/store/modules/System'
 const SystemPinia = SystemStore()

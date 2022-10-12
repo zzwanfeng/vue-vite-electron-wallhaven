@@ -7,6 +7,18 @@
     ></span>
 
     <span
+      v-if="isMax"
+      class="opt-btn iconfont icon-tuichuquanping"
+      @click="TitleClick('max')"
+    ></span>
+
+    <span
+      v-else
+      class="opt-btn iconfont icon-quanping"
+      @click="TitleClick('max')"
+    ></span>
+
+    <span
       class="opt-btn iconfont icon-zuixiaohua"
       @click="TitleClick('min')"
     ></span>
@@ -14,6 +26,10 @@
 </template>
 
 <script setup>
+import { ref } from 'vue'
+
+let isMax = ref(false)
+
 const { ipcRenderer } = require('electron')
 const { title } = defineProps({
   title: String,
@@ -22,6 +38,10 @@ const { title } = defineProps({
 const TitleClick = (type) => {
   ipcRenderer.send(type)
 }
+
+ipcRenderer.on('mainWin-max', (_, status) => {
+  isMax.value = status
+})
 </script>
 
 <style lang="scss" scoped>

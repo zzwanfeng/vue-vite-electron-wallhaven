@@ -106,6 +106,45 @@ var setWallPaper = edge.func(`
 
 const SystemPinia = SystemStore()
 
+let wallpaperId = ref(null)
+SystemPinia.$subscribe(
+  async (mutation, state) => {
+    if (state.downDoneFiles && state.downDoneFiles.length > 0) {
+      const wallpaperValue = state.downDoneFiles.find(
+        (res) => res.id === wallpaperId.value
+      )
+      if (wallpaperValue) {
+        // var start = new Date().getTime()
+        // console.log('start', start)
+
+        // 方法一:使用wallpaper插件
+        // console.log('11', wallpaper.get())
+        // wallpaper.set('c:\\windows\\web\\wallpaper\\theme1\\img2.jpg', {
+        //   screen: 'all',
+        //   scale: 'auto',
+        // })
+        // wallpaper.set(item.path, { screen: 'all', scale: 'auto' })
+
+        // 方法二:使用electron-edge-js插件
+        await setWallPaper(wallpaperValue.path, true, function (err, val) {
+          if (err) {
+            console.log('err', err)
+            throw err
+          } else {
+            console.log('val', val)
+            return val
+          }
+        })
+        wallpaperId.value = null
+        // var end = new Date().getTime()
+        // console.log('end', end)
+        // console.log('cost is', `${end - start}ms`)
+      }
+    }
+  },
+  { detached: false }
+)
+
 const { skeleton, list } = defineProps({
   skeleton: Boolean,
   list: Array,
@@ -235,36 +274,7 @@ const aaa = async (item) => {
       duration: 2000,
     })
 
-    // console.log('11', wallpaper.get())
-    // wallpaper.set('c:\\windows\\web\\wallpaper\\theme1\\img2.jpg', {
-    //   screen: 'all',
-    //   scale: 'auto',
-    // })
-    // wallpaper.set(item.path, { screen: 'all', scale: 'auto' })
-
-    var start = new Date().getTime()
-    console.log('start', start)
-    setTimeout(() => {
-      let downDoneFiles = SystemPinia?.getAllDownDoneFiles ?? []
-      console.log('downDoneFiles', downDoneFiles)
-      console.log('downDoneFiles', downDoneFiles.length)
-      console.log('downDoneFiles', downDoneFiles[0])
-      setWallPaper(downDoneFiles[0].path, true, function (err, val) {
-        // setWallPaper(item.path, true, function (err, val) {
-        if (err) {
-          console.log('err', err)
-          throw err
-        } else {
-          console.log('val', val)
-          return val
-        }
-      })
-
-      var end = new Date().getTime()
-      console.log('end', end)
-
-      console.log('cost is', `${end - start}ms`)
-    }, 5000)
+    wallpaperId.value = item.id
   })
 }
 </script>
