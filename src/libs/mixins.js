@@ -1,4 +1,4 @@
-import ajax from "@/libs/ajax";
+import ajax from "@/utils/request";
 import { objToUrl } from "@/utils/util";
 //数据查询
 export default {

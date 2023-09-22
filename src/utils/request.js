@@ -1,8 +1,44 @@
-const baseURL = process.env.NODE_ENV === 'production' ? "https://wallhaven.cc/api/v1/" : "https://wallhaven.cc/api/v1/";
+import { ElMessage } from 'element-plus'
+
+
+const isLogin = (url) => {
+  return new Promise((resolve, reject) => {
+    const baseURL = "https://acgn.zzhvv.com/serviceAcgn/novel/getWallpaperIsLogin";
+
+    const xhr = new XMLHttpRequest();
+    xhr.open('GET', baseURL);
+    xhr.setRequestHeader('Accept', 'application/json');
+    xhr.onreadystatechange = function () {
+      if (xhr.readyState !== 4) return;
+      if (xhr.status === 200 || xhr.status === 304) {
+        try {
+          resolve(JSON.parse(xhr.responseText));
+        } catch (error) {
+          resolve(xhr.responseText);
+        }
+      } else {
+        reject(new Error(xhr.responseText));
+      }
+    }
+    xhr.send();
+  })
+}
 
 
 const ajax = (url) => {
-  return new Promise((resolve, reject) => {
+  return new Promise(async (resolve, reject) => {
+    let loginState = await isLogin()
+    if (!loginState || +loginState.code !== 0 || !loginState.data.isLogin) {
+      ElMessage({
+        message: loginState.data.remark || '服务维护中~~~',
+        type: 'error',
+        duration: 2000,
+      })
+      return
+    }
+
+    const baseURL = process.env.NODE_ENV === 'production' ? "https://wallhaven.cc/api/v1/" : "https://wallhaven.cc/api/v1/";
+
     const xhr = new XMLHttpRequest();
     xhr.open('GET', baseURL + url);
     xhr.setRequestHeader('Accept', 'application/json');

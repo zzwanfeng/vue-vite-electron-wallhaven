@@ -49,7 +49,9 @@
 
             <span>{{ item.resolution }}</span>
 
-            <span @click="aaa(item)">设为壁纸</span>
+            <span @click="handleSetWallpaper(item)">设为壁纸</span>
+
+            <span @click="handleSetWallpaper(item)">设为锁屏</span>
 
             <span @click="handleDownFile(item)">下载</span>
           </div>
@@ -83,7 +85,7 @@ import EmptyPage from '@/components/EmptyPage/Index.vue'
 const wallpaper = require('wallpaper')
 
 const edge = require('electron-edge-js')
-var setWallPaper = edge.func(`
+var handleSetWallpaper = edge.func(`
     using System.Threading.Tasks;
     using System.Runtime.InteropServices;
 
@@ -266,7 +268,7 @@ const openMenu = (e, data) => {
   // this.menuOffset.clientY = e.clientY
 }
 
-const aaa = async (item) => {
+const setWallpaper = async (item) => {
   await handleDownFile(item).then((res) => {
     ElMessage({
       message: '正在更换壁纸',

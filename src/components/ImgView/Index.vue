@@ -36,7 +36,6 @@
       </div>
     </div>
   </transition>
-
 </template>
 
 <script setup>
@@ -52,7 +51,7 @@ import {
 } from 'vue'
 import { aspectRatioToWH } from '@/utils/util'
 import { getTime } from '@/utils/util'
-import { getImgBlod } from '@/libs/ajax'
+import { getImgBlod } from '@/utils/request'
 import errimg from '@/assets/images/errimg.svg'
 import { ElMessage } from 'element-plus'
 import { SystemStore } from '@/store/modules/System'
