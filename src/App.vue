@@ -3,8 +3,7 @@
     <aside class="aside">
       <div class="logo">
         <img draggable="false" :src="logo" alt />
-        <!-- <div>One Wallhaven</div> -->
-        <div>zzh plus</div>
+        <div>zzwanfeng</div>
       </div>
 
       <aside-nav @selectMenu="handleSelect"></aside-nav>

@@ -33,7 +33,7 @@
   },
   "build": {
     "appId": "com.my-website.my-app",
-    "productName": "Zzh Plus App",
+    "productName": "zzwanfeng App",
     "copyright": "Copyright © 2021 kuari",
     "mac": {
       "category": "public.app-category.utilities",
