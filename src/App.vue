@@ -3,7 +3,7 @@
     <aside class="aside">
       <div class="logo">
         <img draggable="false" :src="logo" alt />
-        <div>zzwanfeng</div>
+        <div>WallpaperZz</div>
       </div>
 
       <aside-nav @selectMenu="handleSelect"></aside-nav>

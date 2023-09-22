@@ -93,7 +93,7 @@ if (!gotTheLock) {
     //实例化一个tray对象，构造函数的唯一参数是需要在托盘中显示的图标url 
     tray = new Tray(iconPath)
     //鼠标移到托盘中应用程序的图标上时，显示的文本
-    tray.setToolTip('zzwanfeng')
+    tray.setToolTip('WallpaperZz')
     //点击图标的响应事件，这里是切换主窗口的显示和隐藏
     tray.on('click', () => {
       if (mainWindow.isVisible()) {

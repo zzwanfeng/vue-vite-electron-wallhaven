@@ -2,10 +2,8 @@
   <div>
     <div class="about">
       <p class="about-post">
-        zzh无话可说
-        <!-- 《Wallhaven》是一个由个人开发的桌面壁纸类程序。
-        本程序图片内容都来源于互联网(wallhaven.cc)，
-        图片版权为原作者所有，若有侵权联系删除。 -->
+        《WallpaperZz》是一个由个人开发的桌面壁纸类程序。
+        本程序图片内容都来源于互联网， 图片版权为原作者所有，若有侵权联系删除。
       </p>
     </div>
     <ul class="version" v-for="(item, index) in update" :key="index">
@@ -41,6 +39,7 @@ export default {
             '支持断点续下载',
             '支持设置壁纸',
             '以上都是梦想',
+            '他强任他强，清风拂山岗。他横任他横，明月照大江。',
           ],
         },
       ],
