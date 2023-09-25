@@ -51,7 +51,7 @@
 
             <span @click="handleSetWallpaper(item)">设为壁纸</span>
 
-            <span @click="handleSetWallpaper(item)">设为锁屏</span>
+            <!-- <span @click="handleSetWallpaper(item)">设为锁屏</span> -->
 
             <span @click="handleDownFile(item)">下载</span>
           </div>
