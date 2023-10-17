@@ -123,6 +123,7 @@ const handler = (val) => {
     // 获取原始图片
     getImgBlod(path)
       .then((res) => {
+        console.log('res', res)
         imgUrl.value = res
         const newImgSize = aspectRatioToWH(
           clientWidth.value - 100,
@@ -157,7 +158,7 @@ const handleRef = () => {
 
 // 图片加载失败
 const handleError = () => {
-  path = errimg
+  imgUrl.value = errimg
   imgSize.w = 600
   imgSize.h = 600
 }

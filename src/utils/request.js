@@ -27,15 +27,15 @@ const isLogin = (url) => {
 
 const ajax = (url) => {
   return new Promise(async (resolve, reject) => {
-    let loginState = await isLogin()
-    if (!loginState || +loginState.code !== 0 || !loginState.data.isLogin) {
-      ElMessage({
-        message: loginState.data.remark || '服务维护中~~~',
-        type: 'error',
-        duration: 2000,
-      })
-      return
-    }
+    // let loginState = await isLogin()
+    // if (!loginState || +loginState.code !== 0 || !loginState.data.isLogin) {
+    //   ElMessage({
+    //     message: loginState.data.remark || '服务维护中~~~',
+    //     type: 'error',
+    //     duration: 2000,
+    //   })
+    //   return
+    // }
 
     const baseURL = process.env.NODE_ENV === 'production' ? "https://wallhaven.cc/api/v1/" : "https://wallhaven.cc/api/v1/";
 
@@ -84,6 +84,7 @@ export const getImgBlod = (url, timeout = 60000) => {
       if (xhr.status === 200 || xhr.status === 304) {
         try {
           let blob = this.response;
+          console.log('blob', blob)
           resolve(window.URL.createObjectURL(blob));
         }
         catch (error) {
